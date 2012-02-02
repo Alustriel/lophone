@@ -9,6 +9,24 @@ const phone_status_calling_in  = 1;
 const phone_status_calling_out = 2;
 const phone_status_connected   = 3;
 
+/* Convert status string to status number */
+function phone_status_string_to_number(str)
+{
+	switch(str)
+	{
+	case "idle":
+		return phone_status_idle;
+	case "callingin\r":
+		return phone_status_calling_in;
+	case "callingout\r":
+		return phone_status_calling_out;
+	case "connected\r":
+		return phone_status_connected;
+	default:
+		return phone_status_invalid;
+	}
+}
+
 /* Get a modem */
 function phone_get_modem()
 {
@@ -29,22 +47,25 @@ function phone_get_modem()
 	return lines[0];
 }
 
-/* Convert status string to status number */
-function phone_status_string_to_number(str)
+/* Get modem information */
+function phone_get_modem_info(modem)
 {
-	switch(str)
-	{
-	case "idle":
-		return phone_status_idle;
-	case "callingin\r":
-		return phone_status_calling_in;
-	case "callingout\r":
-		return phone_status_calling_out;
-	case "connected\r":
-		return phone_status_connected;
-	default:
-		return phone_status_invalid;
-	}
+	var http_request = new XMLHttpRequest();
+	var url = client_cgi_url;
+	var data = null, lines = null;
+
+	url += "/getmodeminfo" +
+		"?modem=" + modem_path;
+	http_request.open("GET", url, false);
+	http_request.send(null);
+	data = http_request.responseText;
+	lines = data.split('\n');
+
+	if((200!=http_request.status) ||
+			(0>=lines.length))
+	  return null;
+
+	return lines;
 }
 
 /* Get current phone status */

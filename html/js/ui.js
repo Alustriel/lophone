@@ -49,11 +49,13 @@ function ui_switch_to_call_list()
 {
 	var html = null;
 	var contacts = phone_get_contacts();
+	var infos = phone_get_modem_info(modem_path);
 
 	if(null == contacts)
 	  return false;
 
-	html = "<center><form>";
+	html = "<center><h2>Modem " + infos[1] + "</h2></center>";
+	html += "<center><form>";
 	for(var i=0, b=false; i<contacts.length; i++)
 	{
 		var fields = contacts[i].split(':');
