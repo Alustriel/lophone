@@ -2,46 +2,32 @@
  * Heiher <admin@heiher.info>
  */ 
 
-const ui_main_loop_timeout_value = 2000;
-
-var   ui_phone_status_last = null;
-
 /* Main loop handler */
-function ui_main_loop_handler()
+function ui_main_loop_handler(s)
 {
-	var s = phone_get_status();
-
-	/* Skip if status not changed */
-	if(s[0] != ui_phone_status_last)
+	switch(s)
 	{
-		switch(s[0])
-		{
-		case phone_status_idle:
-			ui_switch_to_call_list();
-			break;
-		case phone_status_calling_in:
-			ui_switch_to_calling_in();
-			break;
-		case phone_status_calling_out:
-			ui_switch_to_calling_out();
-			break;
-		case phone_status_connected:
-			ui_switch_to_connected();
-			break;
-		}
-
-		ui_phone_status_last = s[0];
+	case phone_status_idle:
+		ui_switch_to_call_list();
+		break;
+	case phone_status_calling_in:
+		ui_switch_to_calling_in();
+		break;
+	case phone_status_calling_out:
+		ui_switch_to_calling_out();
+		break;
+	case phone_status_connected:
+		ui_switch_to_connected();
+		break;
 	}
 
-	/* install timeout */
-	setTimeout(ui_main_loop_handler,
-				ui_main_loop_timeout_value);
+	phone_get_status_lp(ui_main_loop_handler);
 }
 
 /* Main loop run */
 function ui_main_loop_run()
 {
-	ui_main_loop_handler();
+	phone_get_status_lp(ui_main_loop_handler);
 }
 
 /* Switch to Idle */

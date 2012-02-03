@@ -9,6 +9,8 @@ const phone_status_calling_in  = 1;
 const phone_status_calling_out = 2;
 const phone_status_connected   = 3;
 
+var phone_status_last = null;
+
 /* Convert status string to status number */
 function phone_status_string_to_number(str)
 {
@@ -16,14 +18,35 @@ function phone_status_string_to_number(str)
 	{
 	case "idle":
 		return phone_status_idle;
+	case "callingin":
 	case "callingin\r":
 		return phone_status_calling_in;
+	case "callingout":
 	case "callingout\r":
 		return phone_status_calling_out;
+	case "connected":
 	case "connected\r":
 		return phone_status_connected;
 	default:
 		return phone_status_invalid;
+	}
+}
+
+/* Convert status number to status string */
+function phone_status_number_to_string(num)
+{
+	switch(num)
+	{
+	case phone_status_idle:
+		return "idle";
+	case phone_status_calling_in:
+		return "callingin";
+	case phone_status_calling_out:
+		return "callingout";
+	case phone_status_connected:
+		return "connected";
+	default:
+		return "invalid";
 	}
 }
 
@@ -102,6 +125,33 @@ function phone_get_status()
 	}
 
 	return retval;
+}
+
+/* Get current phone status (Long Polling) */
+function phone_get_status_lp(callback)
+{
+	var http_request = new XMLHttpRequest();
+	var url = client_cgi_url;
+
+	url += "/lpgetmodemstatus" +
+		"?modem=" + modem_path +
+		"&status=" +
+		phone_status_number_to_string(phone_status_last);
+	http_request.onreadystatechange = function() {
+		if(this.DONE == this.readyState)
+		{
+			if(200 == this.status)
+			{
+				phone_status_last =
+					phone_status_string_to_number(this.responseText);
+				callback(phone_status_last);
+			}
+			else
+			  callback(phone_status_invalid);
+		}
+	}
+	http_request.open("GET", url);
+	http_request.send();
 }
 
 /* Get phone contacts */
