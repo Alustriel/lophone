@@ -138,7 +138,7 @@ function phone_get_status_lp(callback)
 		"&status=" +
 		phone_status_number_to_string(phone_status_last);
 	http_request.onreadystatechange = function() {
-		if(this.DONE == this.readyState)
+		if(4 == this.readyState) /* this.DONE */
 		{
 			if(200 == this.status)
 			{
